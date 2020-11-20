@@ -2,7 +2,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HeroDetailComponent } from './hero-detail.component';
 import { HeroService } from '../hero.service';
 import { Location } from '@angular/common';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { async, ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { of } from 'rxjs/internal/observable/of';
 import { Hero } from '../hero';
 import { FormsModule } from '@angular/forms';
@@ -42,8 +42,57 @@ describe('HeroDetailComponent', () => {
 		);
 	});
 
+	it('should render hero name in an h2 tag - with done', () => {
+		fixture.detectChanges();
+		expect(fixture.nativeElement.querySelector('h2').textContent).toContain('LA MARAÑAZA');
+	});
+
+	it('should call updateHero when save is called', (done) => {
+		mockHeroService.updateHero.and.returnValue(of({}));
+		fixture.detectChanges();
+
+		fixture.componentInstance.save();
+		setTimeout(() => {
+			expect(mockHeroService.updateHero).toHaveBeenCalled();
+			done();
+		}, 300);
+	});
+
 	it('should render hero name in an h2 tag', () => {
 		fixture.detectChanges();
 		expect(fixture.nativeElement.querySelector('h2').textContent).toContain('LA MARAÑAZA');
 	});
+
+	it('should call updateHero when save is called  - with done', (done) => {
+		mockHeroService.updateHero.and.returnValue(of({}));
+		fixture.detectChanges();
+
+		fixture.componentInstance.save();
+		setTimeout(() => {
+			expect(mockHeroService.updateHero).toHaveBeenCalled();
+			done();
+		}, 300);
+	});
+
+	it('should call updateHero when save is called  - with fakeAsync', fakeAsync(() => {
+		mockHeroService.updateHero.and.returnValue(of({}));
+		fixture.detectChanges();
+
+		fixture.componentInstance.save();
+		tick(250); // Ticks forward 250 ms and calls any code that should be called inside of that timeframe
+
+		expect(mockHeroService.updateHero).toHaveBeenCalled();
+	}));
+
+	it('should call updateHero when save is called  - with async for Promise', async(() => {
+		mockHeroService.updateHero.and.returnValue(of({}));
+		fixture.detectChanges();
+
+		fixture.componentInstance.saveWithPromise();
+		fixture.whenStable();
+
+		fixture.whenStable().then(() => {
+			expect(mockHeroService.updateHero).toHaveBeenCalled();
+		});
+	}));
 });
